@@ -39,8 +39,24 @@
 </head>
 
 <body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6">IT Inventory Management</h1>
+    <!--<div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">IT Inventory Management</h1>-->
+
+
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center mb-6">
+              <h1 id="it-inventory-management" class="text-3xl font-bold">IT Inventory Management</h1>
+              <div class="flex space-x-2">
+                <button id="exportExcel" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                  Export to Excel
+                </button>
+                <button id="exportPDF" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                  Export to PDF
+                </button>
+              </div>
+            </div>
+
+
 
         <div class="mb-6">
             <h2 class="text-xl font-semibold mb-2">Add Item</h2>
@@ -125,6 +141,7 @@
                         </tr>
                     </thead>
                     <tbody id="inventoryList"></tbody>
+                    <tbody id="inventoryTableBody" style="display: none;"></tbody>
                 </table>
             </div>
         </div>
@@ -179,7 +196,57 @@
         </div>
     </div>
 
+
+
+    <!-- CDN libraries included here-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+
+
     <script>
+
+
+let inventoryData = { items: [] };
+
+  // Fetch inventory data when the page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    fetchInventoryData();
+  });
+
+  function fetchInventoryData() {
+    fetch('/api/items')
+      .then(response => response.json())
+      .then(data => {
+        inventoryData = data;
+        renderInventoryTable();
+      })
+      .catch(error => console.error('Error fetching inventory data:', error));
+  }
+
+  function renderInventoryTable() {
+    const tableBody = document.getElementById('inventoryTableBody');
+    tableBody.innerHTML = '';
+    inventoryData.items.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.quantity}</td>
+        <td>${item.assignedTo}</td>
+        <td>${item.category}</td>
+        <td>
+          <button onclick="editItem(${item.id})" class="text-blue-500 hover:text-blue-700">Edit</button>
+          <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700">Delete</button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+////////////////////////////////////////////
+
+
+
         const addItemForm = document.getElementById('addItemForm');
         const inventoryList = document.getElementById('inventoryList');
         const editModal = document.getElementById('editModal');
@@ -319,6 +386,41 @@
 
         // Load inventory on page load
         loadInventory();
+
+
+
+
+
+        // New functions for exporting data
+        function exportToExcel() {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(inventoryData.items.map(item => ({
+      Name: item.name,
+      Quantity: item.quantity,
+      "Assigned To": item.assignedTo,
+      Category: item.category
+    })));
+    XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+    XLSX.writeFile(wb, "inventory.xlsx");
+  }
+
+  function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.autoTable({
+      head: [['Name', 'Quantity', 'Assigned To', 'Category']],
+      body: inventoryData.items.map(item => [
+        item.name,
+        item.quantity,
+        item.assignedTo,
+        item.category
+      ])
+    });
+    doc.save("inventory.pdf");
+  }
+
+  document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+  document.getElementById('exportPDF').addEventListener('click', exportToPDF);
     </script>
 </body>
 
