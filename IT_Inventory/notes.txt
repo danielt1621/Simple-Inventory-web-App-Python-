@@ -5,19 +5,21 @@
 
 General ideas and notes:
 
-- 
+- The inventory_data.json file, contains all the data that will then be fetched by the application
+
+- Server.py start a local server at http://locahost:5000
+
+- To change the low items threshold the user should edit the index.html file
+
+- The string to laod the application is in the login.php file
+
+- The flask server should be on inroder to access the web site
 
 
 
 
 
-
-
-
-
-
-
-
+       
 
 
 

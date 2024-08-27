@@ -5,9 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Inventory Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <style>
+        html {
+            background-color: #FFF9C4;
+
+        }
+
         #notificationArea {
             position: fixed;
             top: 20px;
@@ -35,32 +41,276 @@
         .warning {
             background-color: #ff9800;
         }
+
+        .copyright-notice {
+            position: fixed;
+            /*Change to relative if it's annoying to be persistent*/
+            bottom: 0;
+            left: 0;
+            font-size: 12px;
+            color: #ffffff;
+            padding: 5px;
+            background-color: #3c83f6a1;
+            border-top: 1px solid #ddd;
+            width: 100%;
+            text-align: left;
+            transition: ease-in 0.5s;
+        }
+
+        .copyright-notice:hover {
+            opacity: 0;
+            transition: ease-out 0.5s;
+        }
+
+
+        /*  styles for info icon and popup window */
+        .info-icon {
+            position: relative;
+
+            left: 5px;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .info-icon:hover {
+            transform: scale(1.2);
+
+        }
+
+
+
+
+        .info-popup {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.877);
+            border: 10px solid #FEF3C8;
+            border-radius: 3%;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            word-wrap: break-word;
+            /* Forces long words to wrap */
+            word-break: break-word;
+            /* Ensures text does not overflow */
+            overflow: hidden;
+            /* Ensure no overflowing content */
+            box-sizing: border-box;
+            z-index: 1000;
+            display: none;
+            top: 65px;
+            margin-left: 390px;
+
+        }
+
+        .info-popup.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+
+
+        .info-popup .close-icon {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .info-popup .close-icon:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+
+
+        .info-popup .email-button {
+            background-color: #3c83f6a1;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .info-popup .email-button:hover {
+            background-color: #3c83f6;
+        }
+
+        #pop-up_h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+
+
+        @media (max-width: 640px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .sm\:flex-row {
+                flex-direction: column;
+            }
+
+            .sm\:space-x-2>*+* {
+                margin-top: 0.5rem;
+                margin-left: 0;
+            }
+
+            .sm\:px-8 {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .sm\:text-left {
+                text-align: center;
+            }
+
+            .w-96 {
+                width: 90%;
+                max-width: 20rem;
+            }
+
+            #table-responsive {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            #editbtn {
+                margin-top: 0.5rem;
+                margin-left: 0;
+
+            }
+
+            #deletebtn {
+                margin-top: 0.5rem;
+                margin-left: 0;
+            }
+
+            #table_headers {
+                text-align: center;
+            }
+
+            .info-popup.show {
+                overflow-y: auto;
+                width: 90%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                top: 0;
+                right: 0;
+                background-color: white;
+                
+            }
+
+            /* Ensure inner content also adjusts */
+            .info-popup .content {
+                font-size: 1em;
+                /* Adjust the font size for mobile readability */
+            }
+        }
     </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-green-100">
     <!--<div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold mb-6">IT Inventory Management</h1>-->
 
 
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center mb-6">
-              <h1 id="it-inventory-management" class="text-3xl font-bold">IT Inventory Management</h1>
-              <div class="flex space-x-2">
-                <button id="exportExcel" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                  Export to Excel
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+            <h1 id="it-inventory-management" class="text-2xl sm:text-3xl font-bold text-center sm:text-left">IT
+                Inventory Management<i class="fas fa-info-circle info-icon" aria-hidden="true" id="infoIcon"></i></h1>
+            <div class="info-popup" id="popupContent">
+                <i class="fas fa-times close-icon" aria-hidden="true"></i>
+
+                <h1 id="pop-up_h1">Help and Support</h1>
+                <p>
+                    In the <strong>"Add Item"</strong> section, complete the form by providing:
+                <ul>
+                    <li><strong>Item Name:</strong> Preferably something simple to remember.</li>
+                    <li><strong>Quantity:</strong> Should not be less than 0.</li>
+                    <li><strong>Assigned To:</strong> If unassigned, type "none".</li>
+                    <li><strong>Category:</strong> Select the appropriate category for the item.</li>
+                </ul>
+                </p>
+
+                <p>
+                    All entered data will be displayed in the <strong>"Inventory List"</strong>. You can:
+                <ul>
+                    <li>Edit entries</li>
+                    <li>Delete entries</li>
+                    <li>Filter entries by category</li>
+                </ul>
+                </p>
+
+                <p>
+                    If an item is close to the <strong>"item threshold"</strong> (found in the
+                    <code><u>loadInventory()</u></code> function in the <code><u>index.html</u></code> file), you will
+                    be notified that the item is almost out of stock.
+                </p>
+
+                <p>
+                    You can export the list as either a Microsoft Excel or a PDF file.
+                </p>
+
+                <p>
+                    For further questions, you can request email support using the button below.
+                </p>
+
+                <button class="email-button"
+                    onclick="window.location.href = 'mailto:d.tsavalos@destinationone.gr?subject=IT_Inventory_help!'">
+                    <i class="fas fa-envelope" aria-hidden="true"></i> Email Support
                 </button>
-                <button id="exportPDF" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                  Export to PDF
-                </button>
-              </div>
             </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                <button id="exportExcel"
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto">
+                    Export to Excel
+                </button>
+                <button id="exportPDF"
+                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto">
+                    Export to PDF
+                </button>
+            </div>
+        </div>
 
 
 
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold mb-2">Add Item</h2>
-            <form id="addItemForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="mb-6 bg-yellow-100 shadow-lg rounded-xl px-4 sm:px-8 pt-6 pb-8">
+            <h2 id="add-item" class="text-xl font-semibold mb-4">Add Item</h2>
+            <form id="addItemForm" class="bg-white shadow-lg rounded-xl px-8 pt-6 pb-8 mb-4">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
                         Name
@@ -75,7 +325,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="quantity" type="number" placeholder="Quantity" required>
+                        id="quantity" type="number" placeholder="Item quantity" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="assignedTo">
@@ -83,14 +333,14 @@
                     </label>
                     <input
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="assignedTo" type="text" placeholder="Assigned to" required>
+                        id="assignedTo" type="text" placeholder="Type 'none' if empty" required>
                 </div>
-                <div class="mb-4">
+                <div class="mb-4 relative">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
                         Category
                     </label>
                     <select
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline cursor-pointer"
                         id="category" required>
                         <option value="">Select Category</option>
                         <option value="Hardware">Hardware</option>
@@ -99,6 +349,12 @@
                         <option value="Peripherals">Peripherals</option>
                         <option value="Accessories">Accessories</option>
                     </select>
+                    <div class="pointer-events-none absolute inset-y-12 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                        </svg>
+                    </div>
                 </div>
                 <div class="flex items-center justify-between">
                     <button
@@ -112,10 +368,13 @@
 
 
 
-        <div class="mb-6">
-            <label for="categoryFilter" class="block text-gray-700 text-sm font-bold mb-2">Filter by Category</label>
-            <select id="categoryFilter"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+
+        <div class="mb-6 relative">
+            <label for="categoryFilter" class="block text-gray-700 text-m font-bold mb-2">
+                Filter by Category
+            </label>
+            <select id="categoryFilter" style="cursor: pointer;"
+                class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 <option value="all">All Categories</option>
                 <option value="Hardware">Hardware</option>
                 <option value="Consumables">Consumables</option>
@@ -123,26 +382,35 @@
                 <option value="Peripherals">Peripherals</option>
                 <option value="Accessories">Accessories</option>
             </select>
+            <div class="pointer-events-none absolute right-0 flex items-center px-2 text-gray-700 " style="top: 47px;;">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+            </div>
         </div>
 
 
 
+
         <div>
-            <h2 class="text-xl font-semibold mb-2">Inventory List</h2>
-            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <table class="w-full">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-2 text-left">Name</th>
-                            <th class="px-4 py-2 text-left">Quantity</th>
-                            <th class="px-4 py-2 text-left">Assigned To</th>
-                            <th class="px-4 py-2 text-left">Category</th>
-                            <th class="px-4 py-2 text-left">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryList"></tbody>
-                    <tbody id="inventoryTableBody" style="display: none;"></tbody>
-                </table>
+            <div class="mb-6 bg-yellow-100 shadow-lg rounded-xl px-4 sm:px-8 pt-6 pb-8">
+                <h2 class="text-xl font-semibold mb-2">Inventory List</h2>
+                <div class="bg-white shadow-lg rounded-xl px-8 pt-6 pb-8 mb-4" id="table-responsive">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left" id="table_headers">Name</th>
+                                <th class="px-4 py-2 text-left" id="table_headers">Quantity</th>
+                                <th class="px-4 py-2 text-left" id="table_headers">Assigned To</th>
+                                <th class="px-4 py-2 text-left" id="table_headers">Category</th>
+                                <th class="px-4 py-2 text-left" id="table_headers">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryList"></tbody>
+                        <tbody id="inventoryTableBody" style="display: none;"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -165,7 +433,7 @@
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="editQuantity">Quantity</label>
                     <input
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="editQuantity" type="number" required>
+                        id="editQuantity" type="number" required min="0">
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="editAssignedTo">Assigned To</label>
@@ -173,17 +441,26 @@
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="editAssignedTo" type="text" required>
                 </div>
-                <div class="mb-4">
+                <div class="mb-4 relative">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="editCategory">Category</label>
-                    <select
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="editCategory" required>
-                        <option value="Hardware">Hardware</option>
-                        <option value="Consumables">Consumables</option>
-                        <option value="Networking">Networking</option>
-                        <option value="Peripherals">Peripherals</option>
-                        <option value="Accessories">Accessories</option>
-                    </select>
+                    <div class="relative">
+                        <select
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="editCategory" required>
+                            <option value="Hardware">Hardware</option>
+                            <option value="Consumables">Consumables</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Peripherals">Peripherals</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex items-center justify-between">
                     <button type="submit"
@@ -192,44 +469,59 @@
                     <button type="button" onclick="closeEditModal()"
                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancel</button>
                 </div>
-            </form>
+
         </div>
     </div>
 
 
 
-    <!-- CDN libraries included here-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
 
 
-    <script>
+    <footer class="copyright-notice">
+        &copy; IT Inventory Managment v1, Daniel Tsavalos
+    </footer>
 
 
-let inventoryData = { items: [] };
 
-  // Fetch inventory data when the page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    fetchInventoryData();
-  });
+</body>
 
-  function fetchInventoryData() {
-    fetch('/api/items')
-      .then(response => response.json())
-      .then(data => {
-        inventoryData = data;
-        renderInventoryTable();
-      })
-      .catch(error => console.error('Error fetching inventory data:', error));
-  }
+</html>
 
-  function renderInventoryTable() {
-    const tableBody = document.getElementById('inventoryTableBody');
-    tableBody.innerHTML = '';
-    inventoryData.items.forEach(item => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
+
+
+
+<!-- CDN libraries included here-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+
+
+<script>
+
+
+    let inventoryData = { items: [] };
+
+    // Fetch inventory data when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchInventoryData();
+    });
+
+    function fetchInventoryData() {
+        fetch('/api/items')
+            .then(response => response.json())
+            .then(data => {
+                inventoryData = data;
+                renderInventoryTable();
+            })
+            .catch(error => console.error('Error fetching inventory data:', error));
+    }
+
+    function renderInventoryTable() {
+        const tableBody = document.getElementById('inventoryTableBody');
+        tableBody.innerHTML = '';
+        inventoryData.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
         <td>${item.name}</td>
         <td>${item.quantity}</td>
         <td>${item.assignedTo}</td>
@@ -239,189 +531,213 @@ let inventoryData = { items: [] };
           <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700">Delete</button>
         </td>
       `;
-      tableBody.appendChild(row);
-    });
-  }
+            tableBody.appendChild(row);
+        });
+    }
 
-////////////////////////////////////////////
+    ////////////////////////////////////////////
 
 
 
-        const addItemForm = document.getElementById('addItemForm');
-        const inventoryList = document.getElementById('inventoryList');
-        const editModal = document.getElementById('editModal');
-        const editItemForm = document.getElementById('editItemForm');
-        const notificationArea = document.getElementById('notificationArea');
+    const addItemForm = document.getElementById('addItemForm');
+    const inventoryList = document.getElementById('inventoryList');
+    const editModal = document.getElementById('editModal');
+    const editItemForm = document.getElementById('editItemForm');
+    const notificationArea = document.getElementById('notificationArea');
 
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notificationArea.appendChild(notification);
-            setTimeout(() => notification.remove(), 5000);
-        }
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notificationArea.appendChild(notification);
+        setTimeout(() => notification.remove(), 7000); // Notification timeout 
+    }
 
-        const categoryFilter = document.getElementById('categoryFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
 
-        // Modify loadInventory to accept an optional filter parameter
+    // Modify loadInventory to accept an optional filter parameter
 
-        function loadInventory(filterCategory = 'all') {
-            axios.get('/api/items')
-                .then(response => {
-                    inventoryList.innerHTML = '';
-                    response.data.items.forEach(item => {
-                        // Filter items based on category selection
-                        if (filterCategory === 'all' || item.category === filterCategory) {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                        <td class="border px-4 py-2">${item.name}</td>
-                        <td class="border px-4 py-2">${item.quantity}</td>
-                        <td class="border px-4 py-2">${item.assignedTo}</td>
-                        <td class="border px-4 py-2">${item.category}</td>
-                        <td class="border px-4 py-2">
-                            <button onclick="openEditModal(${item.id})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded mr-2">Edit</button>
-                            <button onclick="deleteItem(${item.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">Delete</button>
+    function loadInventory(filterCategory = 'all') {
+        axios.get('/api/items')
+            .then(response => {
+                inventoryList.innerHTML = '';
+                response.data.items.forEach(item => {
+                    // Filter items based on category selection
+                    if (filterCategory === 'all' || item.category === filterCategory) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                        <td class="border px-4 py-2" id="table_headers">${item.name}</td>
+                        <td class="border px-4 py-2" id="table_headers">${item.quantity}</td>
+                        <td class="border px-4 py-2" id="table_headers">${item.assignedTo}</td>
+                        <td class="border px-4 py-2" id="table_headers">${item.category}</td>
+                        <td class="border px-4 py-2" id="table_headers">
+                            <button onclick="openEditModal(${item.id})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded mr-2 id="editbtn"">Edit</button>
+                            <button onclick="deleteItem(${item.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded" id="deletebtn">Delete</button>
                         </td>
                     `;
-                            inventoryList.appendChild(row);
+                        inventoryList.appendChild(row);
 
-                            if (item.quantity <= 2 && item.quantity > 0) {
-                                showNotification(`Low stock alert: ${item.name} (${item.quantity} left)`, 'warning');
-                            } else if (item.quantity === 0) {
-                                showNotification(`Out of stock: ${item.name}`, 'error');
-                            }
+                        if (item.quantity <= 2 && item.quantity > 0) {
+                            showNotification(`Low stock alert: ${item.name} (${item.quantity} left)`, 'warning');
+                        } else if (item.quantity === 0) {
+                            showNotification(`Out of stock: ${item.name}`, 'error');
                         }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading inventory:', error);
-                    showNotification('Error loading inventory', 'error');
+                    }
                 });
-        }
+            })
+            .catch(error => {
+                console.error('Error loading inventory:', error);
+                showNotification('Error loading inventory', 'error');
+            });
+    }
 
 
-        // Event listener to detect category changes and filter items
-        categoryFilter.addEventListener('change', function () {
-            const selectedCategory = categoryFilter.value;
-            loadInventory(selectedCategory);
-        });
-
-        addItemForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const newItem = {
-                name: document.getElementById('name').value,
-                quantity: parseInt(document.getElementById('quantity').value),
-                assignedTo: document.getElementById('assignedTo').value,
-                category: document.getElementById('category').value
-            };
-
-            axios.post('/api/items', newItem)
-                .then(response => {
-                    showNotification('Item added successfully!', 'success');
-                    addItemForm.reset();
-                    loadInventory();
-                })
-                .catch(error => {
-                    console.error('Error adding item:', error);
-                    showNotification('Error adding item', 'error');
-                });
-        });
-
-        function openEditModal(id) {
-            axios.get(`/api/items/${id}`)
-                .then(response => {
-                    const item = response.data;
-                    document.getElementById('editItemId').value = item.id;
-                    document.getElementById('editName').value = item.name;
-                    document.getElementById('editQuantity').value = item.quantity;
-                    document.getElementById('editAssignedTo').value = item.assignedTo;
-                    document.getElementById('editCategory').value = item.category;
-                    editModal.style.display = 'block';
-                })
-                .catch(error => {
-                    console.error('Error fetching item details:', error);
-                    showNotification('Error fetching item details', 'error');
-                });
-        }
-
-        function closeEditModal() {
-            editModal.style.display = 'none';
-        }
-
-        editItemForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const id = document.getElementById('editItemId').value;
-            const updatedItem = {
-                name: document.getElementById('editName').value,
-                quantity: parseInt(document.getElementById('editQuantity').value),
-                assignedTo: document.getElementById('editAssignedTo').value,
-                category: document.getElementById('editCategory').value
-            };
-
-            axios.put(`/api/items/${id}`, updatedItem)
-                .then(response => {
-                    showNotification('Item updated successfully!', 'success');
-                    closeEditModal();
-                    loadInventory();
-                })
-                .catch(error => {
-                    console.error('Error updating item:', error);
-                    showNotification('Error updating item', 'error');
-                });
-        });
-
-        function deleteItem(id) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                axios.delete(`/api/items/${id}`)
-                    .then(response => {
-                        showNotification('Item deleted successfully!', 'success');
-                        loadInventory();
-                    })
-                    .catch(error => {
-                        console.error('Error deleting item:', error);
-                        showNotification('Error deleting item', 'error');
-                    });
-            }
-        }
-
-        // Load inventory on page load
-        loadInventory();
-
-
-
-
-
-        // New functions for exporting data
-        function exportToExcel() {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(inventoryData.items.map(item => ({
-      Name: item.name,
-      Quantity: item.quantity,
-      "Assigned To": item.assignedTo,
-      Category: item.category
-    })));
-    XLSX.utils.book_append_sheet(wb, ws, "Inventory");
-    XLSX.writeFile(wb, "inventory.xlsx");
-  }
-
-  function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.autoTable({
-      head: [['Name', 'Quantity', 'Assigned To', 'Category']],
-      body: inventoryData.items.map(item => [
-        item.name,
-        item.quantity,
-        item.assignedTo,
-        item.category
-      ])
+    // Event listener to detect category changes and filter items
+    categoryFilter.addEventListener('change', function () {
+        const selectedCategory = categoryFilter.value;
+        loadInventory(selectedCategory);
     });
-    doc.save("inventory.pdf");
-  }
 
-  document.getElementById('exportExcel').addEventListener('click', exportToExcel);
-  document.getElementById('exportPDF').addEventListener('click', exportToPDF);
-    </script>
-</body>
+    addItemForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const newItem = {
+            name: document.getElementById('name').value,
+            quantity: parseInt(document.getElementById('quantity').value),
+            assignedTo: document.getElementById('assignedTo').value,
+            category: document.getElementById('category').value
+        };
 
-</html>
+        axios.post('/api/items', newItem)
+            .then(response => {
+                showNotification('Item added successfully!', 'success');
+                addItemForm.reset();
+                loadInventory();
+            })
+            .catch(error => {
+                console.error('Error adding item:', error);
+                showNotification('Error adding item', 'error');
+            });
+    });
+
+    function openEditModal(id) {
+        axios.get(`/api/items/${id}`)
+            .then(response => {
+                const item = response.data;
+                document.getElementById('editItemId').value = item.id;
+                document.getElementById('editName').value = item.name;
+                document.getElementById('editQuantity').value = item.quantity;
+                document.getElementById('editAssignedTo').value = item.assignedTo;
+                document.getElementById('editCategory').value = item.category;
+                editModal.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching item details:', error);
+                showNotification('Error fetching item details', 'error');
+            });
+    }
+
+    function closeEditModal() {
+        editModal.style.display = 'none';
+    }
+
+    editItemForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const id = document.getElementById('editItemId').value;
+        const updatedItem = {
+            name: document.getElementById('editName').value,
+            quantity: parseInt(document.getElementById('editQuantity').value),
+            assignedTo: document.getElementById('editAssignedTo').value,
+            category: document.getElementById('editCategory').value
+        };
+
+        axios.put(`/api/items/${id}`, updatedItem)
+            .then(response => {
+                showNotification('Item updated successfully!', 'success');
+                closeEditModal();
+                loadInventory();
+            })
+            .catch(error => {
+                console.error('Error updating item:', error);
+                showNotification('Error updating item', 'error');
+            });
+    });
+
+    function deleteItem(id) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            axios.delete(`/api/items/${id}`)
+                .then(response => {
+                    showNotification('Item deleted successfully!', 'success');
+                    loadInventory();
+                })
+                .catch(error => {
+                    console.error('Error deleting item:', error);
+                    showNotification('Error deleting item', 'error');
+                });
+        }
+    }
+
+    // Load inventory on page load
+    loadInventory();
+
+
+
+
+
+    // New functions for exporting data
+    function exportToExcel() {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(inventoryData.items.map(item => ({
+            Name: item.name,
+            Quantity: item.quantity,
+            "Assigned To": item.assignedTo,
+            Category: item.category
+        })));
+        XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+        XLSX.writeFile(wb, "inventory.xlsx");
+    }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.autoTable({
+            head: [['Name', 'Quantity', 'Assigned To', 'Category']],
+            body: inventoryData.items.map(item => [
+                item.name,
+                item.quantity,
+                item.assignedTo,
+                item.category
+            ])
+        });
+        doc.save("inventory.pdf");
+    }
+
+    document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+    document.getElementById('exportPDF').addEventListener('click', exportToPDF);
+
+
+
+    //info window popup scripts
+    const infoIcon = document.querySelector('.info-icon');
+    const popupWindow = document.querySelector('.info-popup');
+    const closeIcon = document.querySelector('.close-icon');
+
+    infoIcon.addEventListener('click', () => {
+        popupWindow.classList.add('show');
+    });
+
+    closeIcon.addEventListener('click', () => {
+        popupWindow.classList.remove('show');
+    });
+
+    // Add event listener to document to close popup when clicking outside
+    document.addEventListener('click', (e) => {
+        if (e.target !== popupWindow && e.target !== infoIcon) {
+            popupWindow.classList.remove('show');
+        }
+
+    });
+
+
+
+
+</script>

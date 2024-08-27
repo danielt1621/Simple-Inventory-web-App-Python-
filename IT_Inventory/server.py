@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect, url_for, session
 import json
 import os
 
 app = Flask(__name__)
+app.secret_key = '0000'  # secret key for sessions no reason for encryption yet
 
 FILE_PATH = 'inventory_data.json'
 
@@ -21,7 +22,27 @@ def save_inventory(inventory):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('index.html')
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form['password']
+        if password == '0000':
+                session['logged_in'] = True
+                return redirect(url_for('index'))
+        else:
+            error = 'Invalid password. If you forgot your password, contact your admin.'
+            return render_template('login.html', error=error)
+    return render_template('login.html')
+    
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+    
 
 @app.route('/api/items', methods=['GET', 'POST'])
 def items():
@@ -58,4 +79,5 @@ def item(item_id):
         return jsonify({"message": "Item deleted successfully!"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    '''app.run(debug=True)'''
+    app.run(host='0.0.0.0', port=5000, debug=True)
