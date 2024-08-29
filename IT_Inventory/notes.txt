@@ -1,9 +1,20 @@
 ** IT Inventory web applciation v1. Daniel Tsavalos
 
+How it wokrs:
+
+- The user can add entries into the inventory_data.json, by completing the form on the index.html
+- After successfully adding an item, it will be displayed on a table below.
+- The user can edit or delete entries, as well as filter items that are visible on the table
+	based on the category they belong to.
+- The user can export the item list as a PDF or Excel file based on what category is selected.
+- The program checks every 1 day for Consumable items that are out or low on stock, and every 3 days
+	for General items, and it notifies the uesr via email.
+   
 
 
 
-General ideas and notes:
+
+General application notes:
 
 - The inventory_data.json file, contains all the data that will then be fetched by the application
 
@@ -11,27 +22,56 @@ General ideas and notes:
 
 - To change the low items threshold the user should edit the index.html file
 
-- The string to laod the application is in the login.php file
+- The string to log into the application is in the server.py file
 
-- The flask server should be on inroder to access the web site
+- The flask server should be 'running' inroder to access the web site
 
+- The app will automatically check every 1 day of "Consumable Items"
+	and every 3 days for "General Items". (The values can be adjusted in server.py ln: 229-230)
 
+- To manually trigger an email response, on your browser type: http://(server_ip):5000/trigger_email
 
-
-
-       
-
-
-
-
+- All app credentials can be located in the server.py file. The doesn't store private values, so there is
+	no need to hide them from the users for now.
 
 
+- test_low_stock.py , is a test script you can use to test that the server.py can communicate with the email service
+	without actually parsing the .json file.
+
+
+- run_flask.bat This file is the one that starts a service named "FlaskAppService", that starts and runs on startup the 
+	server.py file. 
+	# schtasks /Create /TN "RunFlaskApp" /TR "C:\Apache24\htdocs\IT_Inventory\run_flask.bat" /SC ONSTART /RU SYSTEM /RL HIGHEST /F
+		- This creates the schedule to run the run_flask.bat file on start with highest privillages
+	# schtasks /Run /TN "RunFlaskApp" - To start the task immediately without rebooting
+	# schtasks /Query /TN "RunFlaskApp" - To check if the task is running
+	# schtasks /End /TN "RunFlaskApp" - To stop the task if needed
+	# schtasks /Delete /TN "RunFlaskApp" /F - To delete the task if needed
+	
+	"This method allows you to set up the continuous running of your script and ensure it starts at boot, 
+	all without having to restart your server. The task will persist across reboots, 
+	so your Flask application will start automatically whenever the server starts up in the future."
 
 
 
+(((((((((((((- service.py This is file creates a windows service that will serve the flask application from server.py
+	In order to configure the service first: **** IMPORTANT do not use the service.py script if you created a .bat file
+						 ****that automaticlaly starts the server.py file
+	# pip install pyqin32 - To intall the library that allow the code to run as a Windows service
+	# service.py install - To install the service
+	# python serivice.py start - To start the service
 
+	This approach creates a Windows service that will start the Flask app automatically on boot. The service can be 
+	controlled like any other Windows service.
 
-
+	To remove the service:
+	# python service.py stop - To ensure that the service has stopped runnig
+	# python service.py remove - To removethe service
+	# sc query | find "FlaskAppService" - To verify the removal of the service,
+						the name of the service is reffered in the service.py file.
+	# taskkill /F /FI "SERVICES eq FlaskAppService" - in case the service persists and can't be disabled or deleted
+	# sc delete FlaskAppService - After the taskkill command is successfull in order to delete the service
+)))))))))))))
 
 
 

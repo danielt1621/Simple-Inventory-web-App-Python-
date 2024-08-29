@@ -12,6 +12,11 @@
         html {
             background-color: #FFF9C4;
 
+
+        }
+
+        body{
+            min-height: 100vh;
         }
 
         #notificationArea {
@@ -144,6 +149,7 @@
             padding: 10px 20px;
             cursor: pointer;
             transition: all 0.3s ease;
+
         }
 
         .info-popup .email-button:hover {
@@ -169,6 +175,28 @@
 
         li {
             margin-bottom: 5px;
+        }
+
+
+        .expandable-section {
+            max-height: 60px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            margin-bottom: 50px;
+        }
+        .expandable-section.expanded {
+            max-height: 1000px; /* Adjust this value based on your content */
+        }
+        .rotate-icon {
+            transition: transform 0.3s ease-out;
+        }
+        .rotate-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+
+        #addItemForm{
+            margin-top: 20px;
         }
 
 
@@ -231,7 +259,7 @@
                 top: 0;
                 right: 0;
                 background-color: white;
-                
+
             }
 
             /* Ensure inner content also adjusts */
@@ -308,8 +336,11 @@
 
 
 
-        <div class="mb-6 bg-yellow-100 shadow-lg rounded-xl px-4 sm:px-8 pt-6 pb-8">
-            <h2 id="add-item" class="text-xl font-semibold mb-4">Add Item</h2>
+        <div class="expandable-section  bg-yellow-100 shadow-lg rounded-xl px-4 sm:px-8 pt-6 pb-8">
+            <div class="flex justify-between items-center cursor-pointer" id="expandToggle">
+                <h2 class="text-xl font-semibold" style="margin-top: -5px;">Add Item</h2>
+                <i class="fas fa-chevron-down rotate-icon"></i>
+            </div>
             <form id="addItemForm" class="bg-white shadow-lg rounded-xl px-8 pt-6 pb-8 mb-4">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
@@ -498,8 +529,10 @@
 
 <script>
 
+    
 
     let inventoryData = { items: [] };
+    let filteredItems = [];  // Variable to hold currently displayed items
 
     // Fetch inventory data when the page loads
     document.addEventListener('DOMContentLoaded', function () {
@@ -550,7 +583,7 @@
         notification.textContent = message;
         notification.className = `notification ${type}`;
         notificationArea.appendChild(notification);
-        setTimeout(() => notification.remove(), 7000); // Notification timeout 
+        setTimeout(() => notification.remove(), 3500); // Notification timeout 
     }
 
     const categoryFilter = document.getElementById('categoryFilter');
@@ -561,27 +594,27 @@
         axios.get('/api/items')
             .then(response => {
                 inventoryList.innerHTML = '';
-                response.data.items.forEach(item => {
-                    // Filter items based on category selection
-                    if (filterCategory === 'all' || item.category === filterCategory) {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                        <td class="border px-4 py-2" id="table_headers">${item.name}</td>
-                        <td class="border px-4 py-2" id="table_headers">${item.quantity}</td>
-                        <td class="border px-4 py-2" id="table_headers">${item.assignedTo}</td>
-                        <td class="border px-4 py-2" id="table_headers">${item.category}</td>
-                        <td class="border px-4 py-2" id="table_headers">
-                            <button onclick="openEditModal(${item.id})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded mr-2 id="editbtn"">Edit</button>
-                            <button onclick="deleteItem(${item.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded" id="deletebtn">Delete</button>
-                        </td>
-                    `;
-                        inventoryList.appendChild(row);
+                filteredItems = response.data.items.filter(item =>
+                    filterCategory === 'all' || item.category === filterCategory
+                );
+                filteredItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td class="border px-4 py-2" id="table_headers">${item.name}</td>
+                    <td class="border px-4 py-2" id="table_headers">${item.quantity}</td>
+                    <td class="border px-4 py-2" id="table_headers">${item.assignedTo}</td>
+                    <td class="border px-4 py-2" id="table_headers">${item.category}</td>
+                    <td class="border px-4 py-2" id="table_headers">
+                        <button onclick="openEditModal(${item.id})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded mr-2 id="editbtn"">Edit</button>
+                        <button onclick="deleteItem(${item.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded" id="deletebtn">Delete</button>
+                    </td>
+                `;
+                    inventoryList.appendChild(row);
 
-                        if (item.quantity <= 2 && item.quantity > 0) {
-                            showNotification(`Low stock alert: ${item.name} (${item.quantity} left)`, 'warning');
-                        } else if (item.quantity === 0) {
-                            showNotification(`Out of stock: ${item.name}`, 'error');
-                        }
+                    if (item.quantity <= 2 && item.quantity > 0) {
+                        showNotification(`Low stock alert: ${item.name} (${item.quantity} left)`, 'warning');
+                    } else if (item.quantity === 0) {
+                        showNotification(`Out of stock: ${item.name}`, 'error');
                     }
                 });
             })
@@ -590,6 +623,20 @@
                 showNotification('Error loading inventory', 'error');
             });
     }
+
+
+
+// Expandable form for Add item
+document.addEventListener('DOMContentLoaded', function() {
+            const expandToggle = document.getElementById('expandToggle');
+            const expandableSection = document.querySelector('.expandable-section');
+            const rotateIcon = document.querySelector('.rotate-icon');
+
+            expandToggle.addEventListener('click', function() {
+                expandableSection.classList.toggle('expanded');
+                rotateIcon.classList.toggle('rotated');
+            });
+        });
 
 
     // Event listener to detect category changes and filter items
@@ -618,6 +665,11 @@
                 showNotification('Error adding item', 'error');
             });
     });
+
+
+
+    
+
 
     function openEditModal(id) {
         axios.get(`/api/items/${id}`)
@@ -685,8 +737,14 @@
 
     // New functions for exporting data
     function exportToExcel() {
+    try {
+        if (!filteredItems || filteredItems.length === 0) {
+            console.error('No data to export');
+            showNotification('No data to export', 'error');
+            return;
+        }
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(inventoryData.items.map(item => ({
+        const ws = XLSX.utils.json_to_sheet(filteredItems.map(item => ({
             Name: item.name,
             Quantity: item.quantity,
             "Assigned To": item.assignedTo,
@@ -694,14 +752,25 @@
         })));
         XLSX.utils.book_append_sheet(wb, ws, "Inventory");
         XLSX.writeFile(wb, "inventory.xlsx");
+        showNotification('Exported to Excel successfully', 'success');
+    } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        showNotification('Error exporting to Excel', 'error');
     }
+}
 
-    function exportToPDF() {
+function exportToPDF() {
+    try {
+        if (!filteredItems || filteredItems.length === 0) {
+            console.error('No data to export');
+            showNotification('No data to export', 'error');
+            return;
+        }
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         doc.autoTable({
             head: [['Name', 'Quantity', 'Assigned To', 'Category']],
-            body: inventoryData.items.map(item => [
+            body: filteredItems.map(item => [
                 item.name,
                 item.quantity,
                 item.assignedTo,
@@ -709,10 +778,16 @@
             ])
         });
         doc.save("inventory.pdf");
+        showNotification('Exported to PDF successfully', 'success');
+    } catch (error) {
+        console.error('Error exporting to PDF:', error);
+        showNotification('Error exporting to PDF', 'error');
     }
+}
 
-    document.getElementById('exportExcel').addEventListener('click', exportToExcel);
-    document.getElementById('exportPDF').addEventListener('click', exportToPDF);
+// Event listeners for export buttons
+document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+document.getElementById('exportPDF').addEventListener('click', exportToPDF);
 
 
 
@@ -736,6 +811,9 @@
         }
 
     });
+
+
+    
 
 
 
