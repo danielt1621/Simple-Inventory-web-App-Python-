@@ -9,7 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = Flask(__name__)
 app.secret_key = '0000'  # secret key for sessions no reason for encryption yet
 
-FILE_PATH = 'inventory_data.json'
+FILE_PATH = 'inventory_data.json' # adjust the name based on your .json file's name
 
 def load_inventory():
     if os.path.exists(FILE_PATH):
@@ -43,16 +43,14 @@ def check_stock_by_category(category_filter=None, exclude_consumables=False):
 
 SMTP_SERVER = 'smtp.office365.com'  # E.g., 'smtp.gmail.com'
 SMTP_PORT = 587  # Use 465 for SSL or 587 for TLS
-EMAIL_ADDRESS = 'tdanny162108@outlook.com'
-EMAIL_PASSWORD = 'onjvxdsxxyavvtoe'
+EMAIL_ADDRESS = 'your_email_address'
+EMAIL_PASSWORD = 'your_email_password' # If your domian provider doesn't allow you to connect using your password, try to create an app password instead.
 
 def send_email(subject, body, is_html=False):
     msg = MIMEMultipart()
     msg['From'] = EMAIL_ADDRESS
-    msg['To'] = EMAIL_ADDRESS
+    msg['To'] = EMAIL_ADDRESS # You can adjust this to any email adderss of you liking
     msg['Subject'] = subject
-
-    #msg.attach(MIMEText(body, 'plain')) Use for simple plain email content
 
     if is_html:
         msg.attach(MIMEText(body, 'html'))  # Send as HTML  
@@ -228,6 +226,7 @@ def scheduled_task_others():
 scheduler = BackgroundScheduler() 
 scheduler.add_job(scheduled_task_consumables, 'cron', hour=10, minute=0)  # Check consumables every day at 10am
 scheduler.add_job(scheduled_task_others, 'interval', days=3, start_date='2024-01-01 10:05:00')  # Check non-consumables every 3 days at 11am
+# Example if you want the scheduler to check e.g. every 10 minutes: scheduler.add_job(scheduled_task_consumables, 'intervals', minute=10)
 scheduler.start()
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 @app.route('/trigger_email')
@@ -235,6 +234,8 @@ def trigger_email():
     scheduled_task_consumables()
     scheduled_task_others()  # Manually trigger the low stock email check
     return "Email triggered! "# Test code to manually trigger the email
+    # Example, on your browser type the ip that is being used to start port:5000 e.g. 192.168.1.10:5000/trigger_email
+    # and the emails will be manually triggered for testing.
 
 @app.route('/')
 def index():
@@ -296,4 +297,4 @@ def item(item_id):
 
 if __name__ == '__main__':
     '''app.run(debug=True)'''
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True) # You can change the port depending on your needs
