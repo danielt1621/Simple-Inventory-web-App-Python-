@@ -13,7 +13,7 @@ class FlaskAppService(win32serviceutil.ServiceFramework):
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
-        self.hProcess = subprocess.Popen(['python', 'C:\\Apache24\\htdocs\\IT_Inventory\\server.py'])
+        self.hProcess = subprocess.Popen(['python', 'C:\\your\\path\\to_your_project_folder\\server.py'])
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
