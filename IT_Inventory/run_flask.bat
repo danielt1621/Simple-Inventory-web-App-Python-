@@ -1,5 +1,5 @@
 @echo off
-cd /d C:\Apache24\htdocs\IT_Inventory
+cd /d C:\path\to\your_project_folder
 :loop
 python server.py
 timeout /t 10
