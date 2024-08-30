@@ -2,6 +2,7 @@
 A simple inventory app to manipulate data from .json file and show them on an html page using python and js.
 
 User Manual:
+
    In order to get information on how the application works and other relevant information reagarding the setup of the project, make sure to read the documentation at notes.txt file.
 
 Requirements:
